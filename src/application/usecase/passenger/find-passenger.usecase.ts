@@ -19,4 +19,8 @@ export class FindPassengerUseCase {
 
     return passenger;
   }
+
+  public async byId(id: string): Promise<PassengerModel | null> {
+    return this.repository.find(id);
+  }
 }

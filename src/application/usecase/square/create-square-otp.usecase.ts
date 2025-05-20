@@ -30,8 +30,6 @@ export class CreateSquareOTPUseCase {
   private async otpInUse(otp: string): Promise<boolean> {
     const result = await this.cacheService.get(otp);
 
-    console.log(CreateSquareOTPUseCase.name, { result });
-
     return !!result;
   }
 }

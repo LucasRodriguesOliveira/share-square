@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Inject,
   Logger,
+  NotFoundException,
   Param,
   ParseFilePipeBuilder,
   Post,
@@ -19,6 +20,7 @@ import { FindPassengerProxy } from '../../../infrastructure/usecase-proxy/passen
 import { FindPassengerUseCase } from '../../../application/usecase/passenger/find-passenger.usecase';
 import { CreatePassengerReadstreamProxy } from '../../../infrastructure/usecase-proxy/passenger/create-passenger-readstream.proxy';
 import { CreatePassengerReadstreamUseCase } from '../../../application/usecase/passenger/create-passenger-readstream.usecase';
+import { PassengerModel } from '../../../domain/model/passenger.model';
 
 @Controller('passenger')
 export class PassengerController {
@@ -64,15 +66,27 @@ export class PassengerController {
     return result;
   }
 
-  @Get(':userId/:otp')
-  public async getFile(
-    @Param('userId') userId: string,
-    @Param('otp') otp: string,
-  ): Promise<StreamableFile> {
+  @Get(':passengerId')
+  public async find(
+    @Param('passengerId') passengerId: string,
+  ): Promise<PassengerModel> {
+    const passenger = await this.findPassenger.byId(passengerId);
+
+    if (!passenger) {
+      throw new NotFoundException('Passenger Not found');
+    }
+
+    return passenger;
+  }
+
+  @Get(':otp/download')
+  public async getFile(@Param('otp') otp: string): Promise<StreamableFile> {
     const passenger = await this.findPassenger.byOTP(otp);
     const fileReadStream = await this.createPassengerReadStream.run(passenger);
 
-    this.logger.log(`User [${userId}] retrieved file ${otp}`);
+    this.logger.log(
+      `file retrived [${passenger._id}](${passenger.originalname})`,
+    );
 
     return new StreamableFile(fileReadStream);
   }

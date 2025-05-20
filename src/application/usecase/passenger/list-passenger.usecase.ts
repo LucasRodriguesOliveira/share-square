@@ -17,8 +17,6 @@ export class ListPassengerUseCase {
       idList.push(id);
     }
 
-    console.log(ListPassengerUseCase.name, { passengers, idList });
-
     const filteredIdList = idList.filter((id) => !!id);
 
     if (filteredIdList.length === passengers.length) {
